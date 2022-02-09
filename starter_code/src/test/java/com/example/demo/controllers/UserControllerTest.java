@@ -32,6 +32,10 @@ public class UserControllerTest {
         TestUtils.injectObjects(userController, "bCryptPasswordEncoder", encoder);
     }
 
+    /**
+     * Happy path test for creating a user
+     * @throws Exception
+     */
     @Test
     public void createUser_happyPathTest() throws Exception {
         // Example of stubbing
@@ -55,6 +59,26 @@ public class UserControllerTest {
         assertEquals(0, user.getId());
         assertEquals("test", user.getUsername());
         assertEquals("thisIsHashed", user.getPassword());
+
+    }
+
+    /**
+     * Test that the correct response is received if submitted password is
+     * too short.
+     * @throws Exception
+     */
+    @Test
+    public void createUser_shortPasswordTest() throws Exception {
+
+        CreateUserRequest request = new CreateUserRequest();
+        request.setUsername("test");
+        request.setPassword("shortP");
+        request.setConfirmPassword("shortP");
+
+        final ResponseEntity<User> response = userController.createUser(request);
+
+        assertNotNull(response);
+        assertEquals(400, response.getStatusCodeValue());
 
     }
 }
