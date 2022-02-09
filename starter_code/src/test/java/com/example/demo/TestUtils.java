@@ -12,7 +12,7 @@ public class TestUtils {
             Field declaredField = target.getClass().getDeclaredField(fieldName);
 
             // Check if the field is accessible
-            if (declaredField.isAccessible()) {
+            if (!declaredField.isAccessible()) {
                 declaredField.setAccessible(true);
                 wasPrivate = true;
             }
