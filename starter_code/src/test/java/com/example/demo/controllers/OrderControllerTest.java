@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -97,6 +98,27 @@ public class OrderControllerTest {
 
         // Submit via the controller. Response is expected to hold a user order entity
         final ResponseEntity<UserOrder> response = orderController.submit(username);
+
+        // Assert that the response is not null and the response code is 404 (NOT FOUND).
+        assertNotNull(response);
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    /**
+     * Test that the correct response is returned if getting orders for a null user
+     * @throws Exception
+     */
+    @Test
+    public void getOrders_nullUser() throws Exception {
+        // Set up test username
+        String username = "testUsername";
+        // Set up a test user set to null
+        User user = null;
+        // Stub the usage of the findByUsername method in the controller
+        when(userRepository.findByUsername(username)).thenReturn(user);
+
+        // Get orders via the controller. Response is expected to hold a list of user orders
+        final ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser(username);
 
         // Assert that the response is not null and the response code is 404 (NOT FOUND).
         assertNotNull(response);
