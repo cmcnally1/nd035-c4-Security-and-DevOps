@@ -33,11 +33,15 @@ public class OrderControllerTest {
         TestUtils.injectObjects(orderController, "userRepository", userRepository);
     }
 
+    /**
+     * Happy path test for submitting a user's order
+     * @throws Exception
+     */
     @Test
     public void submitOrder_happyPathTest() throws Exception {
         // Set up test username
         String username = "testUsername";
-        // Set up a test user and car
+        // Set up a test user and cart and item
         User user = new User();
         Cart cart = new Cart();
         Item item = new Item();
@@ -76,5 +80,26 @@ public class OrderControllerTest {
         assertEquals("testItem", order.getItems().get(0).getName());
         assertEquals(BigDecimal.valueOf(10.00), order.getTotal());
 
+    }
+
+    /**
+     * Test that the correct response is returned if submitting an order for a null user
+     * @throws Exception
+     */
+    @Test
+    public void submitOrder_nullUser() throws Exception {
+        // Set up test username
+        String username = "testUsername";
+        // Set up a test user set to null
+        User user = null;
+        // Stub the usage of the findByUsername method in the controller
+        when(userRepository.findByUsername(username)).thenReturn(user);
+
+        // Submit via the controller. Response is expected to hold a user order entity
+        final ResponseEntity<UserOrder> response = orderController.submit(username);
+
+        // Assert that the response is not null and the response code is 404 (NOT FOUND).
+        assertNotNull(response);
+        assertEquals(404, response.getStatusCodeValue());
     }
 }
