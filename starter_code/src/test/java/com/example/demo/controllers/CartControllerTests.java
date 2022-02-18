@@ -155,4 +155,57 @@ public class CartControllerTests {
         assertNotNull(response);
         assertEquals(404, response.getStatusCodeValue());
     }
+
+    /**
+     * Happy path test for remove from cart method in controller
+     * @throws Exception
+     */
+    @Test
+    public void removeFromCart_happyPathTest() throws Exception {
+
+        // Set up item
+        Item item = new Item();
+        item.setId(0L);
+        item.setName("testItem");
+        item.setDescription("This is a test item");
+        item.setPrice(BigDecimal.valueOf(10.00));
+
+        // Set up cart
+        Cart cart = new Cart();
+        cart.addItem(item);
+        cart.setId(0L);
+
+        // Set up user
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setId(0L);
+        user.setCart(cart);
+
+        // Set up cart request
+        ModifyCartRequest cartRequest = new ModifyCartRequest();
+        cartRequest.setUsername(user.getUsername());
+        cartRequest.setItemId(item.getId());
+        cartRequest.setQuantity(1);
+
+        // Stubs
+        when(userRepository.findByUsername(cartRequest.getUsername())).thenReturn(user);
+        when(itemRepository.findById(cartRequest.getItemId())).thenReturn(Optional.of(item));
+
+        // Call the add to cart method. Response should contain a cart
+        final ResponseEntity<Cart> response = cartController.removeFromcart(cartRequest);
+
+        // Assert that the response is not null and the response is good
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+
+        // Extract the cart from the response
+        Cart returnedCart = response.getBody();
+
+        // Assert that the returned cart contains the correct information
+        assertNotNull(returnedCart);
+        assertEquals(cart.getId(), returnedCart.getId());
+
+        // Assert that the returned cart is empty as there was only one item, which was then removed
+        assertTrue(returnedCart.getItems().isEmpty());
+    }
 }
