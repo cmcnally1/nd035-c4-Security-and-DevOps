@@ -112,7 +112,43 @@ public class CartControllerTests {
         // Stub
         when(userRepository.findByUsername(cartRequest.getUsername())).thenReturn(user);
 
-        // Call the add to cart method. Response should contain a new cart
+        // Call the add to cart method.
+        final ResponseEntity<Cart> response = cartController.addTocart(cartRequest);
+
+        // Assert that the response is not null and the response is NOT FOUND
+        assertNotNull(response);
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    /**
+     * Test that the correct response is returned if the item cannot be found when adding to cart
+     * @throws Exception
+     */
+    @Test
+    public void addToCart_nullItemTest() throws Exception {
+
+        // Set up cart
+        Cart cart = new Cart();
+
+        // Set up user
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setId(0L);
+        user.setCart(cart);
+
+        // Set up null item
+        Item item = null;
+
+        // Set up cart request
+        ModifyCartRequest cartRequest = new ModifyCartRequest();
+        cartRequest.setUsername(user.getUsername());
+        cartRequest.setQuantity(1);
+
+        // Stubs
+        when(userRepository.findByUsername(cartRequest.getUsername())).thenReturn(user);
+        when(itemRepository.findById(cartRequest.getItemId())).thenReturn(Optional.ofNullable(item));
+
+        // Call the add to cart method.
         final ResponseEntity<Cart> response = cartController.addTocart(cartRequest);
 
         // Assert that the response is not null and the response is NOT FOUND
