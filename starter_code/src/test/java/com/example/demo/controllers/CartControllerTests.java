@@ -191,7 +191,7 @@ public class CartControllerTests {
         when(userRepository.findByUsername(cartRequest.getUsername())).thenReturn(user);
         when(itemRepository.findById(cartRequest.getItemId())).thenReturn(Optional.of(item));
 
-        // Call the add to cart method. Response should contain a cart
+        // Call the remove from cart method. Response should contain a cart
         final ResponseEntity<Cart> response = cartController.removeFromcart(cartRequest);
 
         // Assert that the response is not null and the response is good
@@ -207,5 +207,74 @@ public class CartControllerTests {
 
         // Assert that the returned cart is empty as there was only one item, which was then removed
         assertTrue(returnedCart.getItems().isEmpty());
+    }
+
+    /**
+     * Test that the correct response is returned if the user cannot be found when removing from cart
+     * @throws Exception
+     */
+    @Test
+    public void removeFromCart_nullUserTest() throws Exception {
+
+        // Set up null user
+        User user = null;
+
+        // Set up item
+        Item item = new Item();
+        item.setId(0L);
+        item.setName("testItem");
+        item.setDescription("This is a test item");
+        item.setPrice(BigDecimal.valueOf(10.00));
+
+        // Set up cart request
+        ModifyCartRequest cartRequest = new ModifyCartRequest();
+        cartRequest.setItemId(item.getId());
+        cartRequest.setQuantity(1);
+
+        // Stub
+        when(userRepository.findByUsername(cartRequest.getUsername())).thenReturn(user);
+
+        // Call the remove from cart method.
+        final ResponseEntity<Cart> response = cartController.removeFromcart(cartRequest);
+
+        // Assert that the response is not null and the response is NOT FOUND
+        assertNotNull(response);
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    /**
+     * Test that the correct response is returned if the item cannot be found when removing from cart
+     * @throws Exception
+     */
+    @Test
+    public void removeFromCart_nullItemTest() throws Exception {
+
+        // Set up cart
+        Cart cart = new Cart();
+
+        // Set up user
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setId(0L);
+        user.setCart(cart);
+
+        // Set up null item
+        Item item = null;
+
+        // Set up cart request
+        ModifyCartRequest cartRequest = new ModifyCartRequest();
+        cartRequest.setUsername(user.getUsername());
+        cartRequest.setQuantity(1);
+
+        // Stubs
+        when(userRepository.findByUsername(cartRequest.getUsername())).thenReturn(user);
+        when(itemRepository.findById(cartRequest.getItemId())).thenReturn(Optional.ofNullable(item));
+
+        // Call the remove from cart method.
+        final ResponseEntity<Cart> response = cartController.removeFromcart(cartRequest);
+
+        // Assert that the response is not null and the response is NOT FOUND
+        assertNotNull(response);
+        assertEquals(404, response.getStatusCodeValue());
     }
 }
