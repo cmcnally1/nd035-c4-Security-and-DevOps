@@ -102,4 +102,40 @@ public class ItemControllerTests {
         // Assert that the returned items are the same as the expected items
         assertTrue(item1.equals(returnedItem));
     }
+
+    /**
+     * Happy path test for the get items by name method in controller
+     * @throws Exception
+     */
+    @Test
+    public void getItemsByName_happyPathTest() throws Exception {
+        // Set up items to use to for stubbing
+        Item item1 = new Item();
+        item1.setId(0L);
+        item1.setName("item1Name");
+        item1.setDescription("This is item 1");
+        item1.setPrice(BigDecimal.valueOf(10.00));
+
+        List<Item> items = new ArrayList<>();
+        items.add(item1);
+
+        // Set up name for stubbing
+        String name = "item1Name";
+
+        // Stub the find all repository method
+        when(itemRepository.findByName(name)).thenReturn(items);
+
+        // Call the get items method. Response should contain list of items
+        final ResponseEntity<List<Item>> responseEntity = itemController.getItemsByName(name);
+
+        // Assert that the response is not null and is ok
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+
+        // Extract the list of items from the response
+        List<Item> returnedItems = responseEntity.getBody();
+
+        // Assert that the returned items are the same as the expected items
+        assertTrue(item1.equals(returnedItems.get(0)));
+    }
 }
