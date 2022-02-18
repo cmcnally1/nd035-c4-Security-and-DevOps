@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,6 +103,68 @@ public class OrderControllerTest {
         // Assert that the response is not null and the response code is 404 (NOT FOUND).
         assertNotNull(response);
         assertEquals(404, response.getStatusCodeValue());
+    }
+
+    /**
+     * Happy path test for getting list of orders by user
+     * @throws Exception
+     */
+    @Test
+    public void getOrders_happyPathTest() throws Exception {
+        // Set up test username
+        String username = "testUsername";
+        // Set up a test user and order and item
+        User user = new User();
+        UserOrder order = new UserOrder();
+        Item item = new Item();
+
+
+        // Set up an item for the order
+        item.setId(0l);
+        item.setName("testItem");
+        item.setPrice(BigDecimal.valueOf(10.00));
+        item.setDescription("This is a test item");
+
+        // Create list of items for order
+        List<Item> items = new ArrayList<>();
+        items.add(item);
+
+        // Set the username and cart for the test user
+        user.setId(0L);
+        user.setUsername(username);
+
+        // Set up the user order
+        order.setItems(items);
+        order.setUser(user);
+        order.setId(0L);
+        order.setTotal(BigDecimal.valueOf(10.00));
+
+        // Create a list of orders
+        List<UserOrder> userOrders = new ArrayList<>();
+        userOrders.add(order);
+
+        // Stub the usage of the findByUsername method in the controller
+        when(userRepository.findByUsername(username)).thenReturn(user);
+        // Stub the usage of the findByUser method for orders in the controller
+        when(orderRepository.findByUser(user)).thenReturn(userOrders);
+
+        // Get orders via the controller. The response is expected to hold a list of orders
+        final ResponseEntity<List<UserOrder>> response = orderController.getOrdersForUser(username);
+
+        // Assert that the response is not null and the response is good
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+
+        // Get the list of orders from the response
+        List<UserOrder> returnedOrders = response.getBody();
+
+        // Assert the the list of orders contains the correct information
+        assertNotNull(returnedOrders);
+        assertEquals(item.getName(), returnedOrders.get(0).getItems().get(0).getName());
+        assertEquals(order.getTotal(), returnedOrders.get(0).getTotal());
+        assertEquals(user.getUsername(), returnedOrders.get(0).getUser().getUsername());
+
+
     }
 
     /**
