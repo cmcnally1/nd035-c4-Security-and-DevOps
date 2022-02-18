@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -67,5 +68,38 @@ public class ItemControllerTests {
         // Assert that the returned items are the same as the expected items
         assertTrue(item1.equals(returnedItems.get(0)));
         assertTrue(item2.equals(returnedItems.get(1)));
+    }
+
+    /**
+     * Happy path test for the get item by id method in controller
+     * @throws Exception
+     */
+    @Test
+    public void getItemById_happyPathTest() throws Exception {
+        // Set up item to use to for stubbing
+        Item item1 = new Item();
+        item1.setId(0L);
+        item1.setName("item1Name");
+        item1.setDescription("This is item 1");
+        item1.setPrice(BigDecimal.valueOf(10.00));
+
+        // Set up test ID
+        long id = 0L;
+
+        // Stub the find all repository method
+        when(itemRepository.findById(id)).thenReturn(Optional.of(item1));
+
+        // Call the get items method. Response should contain list of items
+        final ResponseEntity<Item> responseEntity = itemController.getItemById(id);
+
+        // Assert that the response is not null and is ok
+        assertNotNull(responseEntity);
+        assertEquals(200, responseEntity.getStatusCodeValue());
+
+        // Extract the list of items from the response
+        Item returnedItem = responseEntity.getBody();
+
+        // Assert that the returned items are the same as the expected items
+        assertTrue(item1.equals(returnedItem));
     }
 }
