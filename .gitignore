@@ -1,3 +1,4 @@
 .idea/
 /starter_code/target/
 /app.log
+.DS_Store
