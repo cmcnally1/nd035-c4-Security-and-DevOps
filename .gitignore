@@ -2,3 +2,4 @@
 /eCommerceApp/target/
 /app.log
 .DS_Store
+*.iml
